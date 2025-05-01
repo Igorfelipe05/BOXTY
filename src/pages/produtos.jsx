@@ -11,28 +11,23 @@ function Produtos() {
     { id: 1, name: "Móveis", items: ["Sofás", "Mesas", "Cadeiras", "Camas", "Estantes"] },
   ];
 
-  const productDatabase = {
-    "Sofás": [
-      { id: 1, numeroPedido: "M001", nome: "Sofá 3 Lugares", categoria: "Sofás", preco: 1200.00, estoque: 5, unidade: "unidade", codigoBarras: "7890000000001"},
-      { id: 2, numeroPedido: "M002", nome: "Sofá Retrátil", categoria: "Sofás", preco: 1800.00, estoque: 2, unidade: "unidade", codigoBarras: "7890000000002",  }
-    ],
-    "Mesas": [
-      { id: 1, numeroPedido: "M010", nome: "Mesa de Jantar", categoria: "Mesas", preco: 900.00, estoque: 3, unidade: "unidade", codigoBarras: "7890000000010",  },
-      { id: 2, numeroPedido: "M011", nome: "Mesa de Centro", categoria: "Mesas", preco: 400.00, estoque: 4, unidade: "unidade", codigoBarras: "7890000000011",  }
-    ],
-    "Cadeiras": [
-      { id: 1, numeroPedido: "M020", nome: "Cadeira de Escritório", categoria: "Cadeiras", preco: 350.00, estoque: 10, unidade: "unidade", codigoBarras: "7890000000020",  },
-      { id: 2, numeroPedido: "M021", nome: "Cadeira de Madeira", categoria: "Cadeiras", preco: 200.00, estoque: 0, unidade: "unidade", codigoBarras: "7890000000021",  }
-    ],
-    "Camas": [
-      { id: 1, numeroPedido: "M030", nome: "Cama de Casal", categoria: "Camas", preco: 1500.00, estoque: 1, unidade: "unidade", codigoBarras: "7890000000030",  },
-      { id: 2, numeroPedido: "M031", nome: "Cama Solteiro", categoria: "Camas", preco: 1000.00, estoque: 3, unidade: "unidade", codigoBarras: "7890000000031",  }
-    ],
-    "Estantes": [
-      { id: 1, numeroPedido: "M040", nome: "Estante de Livros", categoria: "Estantes", preco: 600.00, estoque: 2, unidade: "unidade", codigoBarras: "7890000000040",  },
-      { id: 2, numeroPedido: "M041", nome: "Estante Modular", categoria: "Estantes", preco: 850.00, estoque: 0, unidade: "unidade", codigoBarras: "7890000000041",  }
-    ]
-  };
+
+
+
+
+   useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/produtos');
+        const data = await response.json();
+        setProductData(data);
+      } catch (error) {
+        console.error('Erro ao buscar produtos:', error);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   const handleItemClick = (item) => {
     setSelectedItem(item);
