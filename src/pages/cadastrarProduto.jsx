@@ -16,91 +16,73 @@ function CadastroProduto() {
   return (
     <div>
       <Header />
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-
-      <div className="bg-white p-6 rounded-lg shadow-md w-96">
-        <h1 className="text-2xl font-semibold text-center mb-4 text-gray-700">Cadastro de Produto</h1>
+    <div className="bg-gradient-to-br from-[#0D1117] via-[#161B22] to-[#1F2A37] min-h-screen flex flex-col items-center justify-center">
+      <div className="bg-[#1F2A37] p-8 rounded-2xl shadow-2xl w-full max-w-md border border-[#3B82F6]">
+        <h1 className="text-3xl font-bold text-center mb-6 text-[#E6EDF3] tracking-wide">
+          Cadastro de Produto
+        </h1>
+        
 
         <form onSubmit={handleSubmit(onSubmit)}>
-          {/* Nome do Produto */}
-          <label className="block mb-2 text-gray-600">Nome do Produto:</label>
+          <label className="block mb-2 text-[#CBD5E1]">Nome do Produto:</label>
           <input
             type="text"
             {...register("nome", { required: "Nome do produto é obrigatório" })}
-            className="w-full p-2 mb-2 border border-gray-300 rounded"
+            className="w-full p-2 mb-2 rounded-lg bg-[#0D1117] border border-[#3B82F6] text-[#E6EDF3] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3B82F6]"
             placeholder="Digite o nome"
           />
           {errors.nome && <p className="text-red-500 text-sm">{errors.nome.message}</p>}
 
-          {/* Código de Barras */}
-          <label className="block mt-2 mb-2 text-gray-600">Código de Barras:</label>
+          <label className="block mt-4 mb-2 text-[#CBD5E1]">Código de Barras:</label>
           <input
             type="text"
             inputMode="numeric"
-            {...register("codigoBarras", { 
+            {...register("codigoBarras", {
               required: "Código de Barras é obrigatório",
-              pattern: { value: /^\d+$/, message: "Apenas números são permitidos" }
+              pattern: { value: /^\d+$/, message: "Apenas números são permitidos" },
             })}
-            className="w-full p-2 mb-2 border border-gray-300 rounded"
+            className="w-full p-2 mb-2 rounded-lg bg-[#0D1117] border border-[#3B82F6] text-[#E6EDF3] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3B82F6]"
             placeholder="Digite o código de barras"
           />
           {errors.codigoBarras && <p className="text-red-500 text-sm">{errors.codigoBarras.message}</p>}
 
-          {/* Categoria */}
-          <label className="block mt-2 mb-2 text-gray-600">Categoria:</label>
-          <select
-            {...register("categoria", { required: "Categoria é obrigatória" })}
-            className="w-full p-2 mb-2 border border-gray-300 rounded"
-          >
-            <option value="">Selecione a categoria</option>
-            <option value="eletronico">Eletrônico</option>
-            <option value="vestuario">Vestuário</option>
-            <option value="alimento">Alimento</option>
-            <option value="outro">Outro</option>
-          </select>
-          {errors.categoria && <p className="text-red-500 text-sm">{errors.categoria.message}</p>}
-
-          {/* Quantidade em Estoque */}
-          <label className="block mt-2 mb-2 text-gray-600">Quantidade em Estoque:</label>
+          <label className="block mt-4 mb-2 text-[#CBD5E1]">Quantidade em Estoque:</label>
           <input
             type="number"
-            {...register("quantidade", { 
+            {...register("quantidade", {
               required: "Quantidade é obrigatória",
-              min: { value: 1, message: "A quantidade deve ser maior que zero" }
+              min: { value: 1, message: "A quantidade deve ser maior que zero" },
             })}
-            className="w-full p-2 mb-2 border border-gray-300 rounded"
+            className="w-full p-2 mb-2 rounded-lg bg-[#0D1117] border border-[#3B82F6] text-[#E6EDF3] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3B82F6]"
             placeholder="Digite a quantidade"
           />
           {errors.quantidade && <p className="text-red-500 text-sm">{errors.quantidade.message}</p>}
 
-          {/* Preço Unitário */}
-          <label className="block mt-2 mb-2 text-gray-600">Preço Unitário:</label>
+          <label className="block mt-4 mb-2 text-[#CBD5E1]">Preço Unitário:</label>
           <input
             type="number"
             step="0.01"
-            {...register("preco", { 
+            {...register("preco", {
               required: "Preço é obrigatório",
-              min: { value: 0.01, message: "O preço deve ser maior que zero" }
+              min: { value: 0.01, message: "O preço deve ser maior que zero" },
             })}
-            className="w-full p-2 mb-2 border border-gray-300 rounded"
+            className="w-full p-2 mb-2 rounded-lg bg-[#0D1117] border border-[#3B82F6] text-[#E6EDF3] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3B82F6]"
             placeholder="Digite o preço unitário"
           />
           {errors.preco && <p className="text-red-500 text-sm">{errors.preco.message}</p>}
 
-          {/* Fornecedor */}
-          <label className="block mt-2 mb-2 text-gray-600">Fornecedor:</label>
+          <label className="block mt-4 mb-2 text-[#CBD5E1]">Fornecedor:</label>
           <input
             type="text"
             {...register("fornecedor", { required: "Fornecedor é obrigatório" })}
-            className="w-full p-2 mb-2 border border-gray-300 rounded"
+            className="w-full p-2 mb-2 rounded-lg bg-[#0D1117] border border-[#3B82F6] text-[#E6EDF3] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3B82F6]"
             placeholder="Digite o nome do fornecedor"
           />
           {errors.fornecedor && <p className="text-red-500 text-sm">{errors.fornecedor.message}</p>}
 
-          {/* Botão de Cadastro */}
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition duration-300 mt-4"
+            className="w-full bg-gradient-to-r from-[#052f6e] to-[#145ea8] hover:from-[#2196F3] hover:to-[#42A5F5] text-white py-2 rounded-lg mt-6 text-lg font-medium shadow-lg transition duration-300 ease-in-out transform hover:scale-105"
           >
             Cadastrar Produto
           </button>
