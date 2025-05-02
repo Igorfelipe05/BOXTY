@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from "../components/Header.jsx/Header";
 
 function Produtos() {
@@ -32,7 +32,7 @@ function Produtos() {
 
   const handleItemClick = (item) => {
     setSelectedItem(item);
-    setProductData(productDatabase[item] || []);
+    setProductData(productData.filter(product => product.categoria === item) || []);
     console.log(`Carregando dados de ${item}`);
   };
 
