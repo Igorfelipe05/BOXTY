@@ -5,7 +5,7 @@ const db = mysql.createPool({
   user: 'seu_usuario',
   password: 'sua_senha',
   database: 'boxty',
-  port: 3306,
+  port: 3307,
 });
 
 export default db;

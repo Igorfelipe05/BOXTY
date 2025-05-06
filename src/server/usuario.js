@@ -37,10 +37,10 @@ router.post('/usuarios', async (req, res) => {
 
 // Rota para autenticar usuários
 router.post('/login', async (req, res) => {
-  const { email, senha } = req.body;
+  const { nome, senha } = req.body; // Alterado de "email" para "nome"
 
   try {
-    const [rows] = await db.query('SELECT * FROM usuarios WHERE email = ?', [email]);
+    const [rows] = await db.query('SELECT * FROM usuarios WHERE nome = ?', [nome]); // Busca pelo nome
     const user = rows[0];
 
     if (!user || !(await bcrypt.compare(senha, user.senha))) {
