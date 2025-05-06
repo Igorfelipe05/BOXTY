@@ -5,10 +5,6 @@ const router = express.Router();
 
 // Rota para cadastrar produtos
 router.post('/produtos', async (req, res) => {
-  if (req.user.role !== 'admin' && req.user.role !== 'gerente') {
-    return res.status(403).json({ error: 'Permissão negada' });
-  }
-
   const { nome, codigo_barras, categoria, quantidade, preco, fornecedor } = req.body;
 
   try {
