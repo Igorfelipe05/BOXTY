@@ -1,11 +1,10 @@
 import express from 'express';
-import { authenticateToken } from './authMiddleware.js';
 import db from './db.js'; // Importa a configuração do banco de dados
 
 const router = express.Router();
 
 // Rota para cadastrar produtos
-router.post('/produtos', authenticateToken, async (req, res) => {
+router.post('/produtos', async (req, res) => {
   if (req.user.role !== 'admin' && req.user.role !== 'gerente') {
     return res.status(403).json({ error: 'Permissão negada' });
   }
@@ -26,7 +25,7 @@ router.post('/produtos', authenticateToken, async (req, res) => {
 });
 
 // Rota para listar produtos
-router.get('/produtos', authenticateToken, async (req, res) => {
+router.get('/produtos', async (req, res) => {
   try {
     const [rows] = await db.query('SELECT * FROM produtos');
     res.json(rows);
