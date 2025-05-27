@@ -5,6 +5,7 @@ services:
     container_name: boxty_db
     restart: always
     environment:
+      MYSQL_ROOT_HOST: '%'
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: boxty
       MYSQL_USER: user

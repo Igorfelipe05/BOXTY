@@ -22,13 +22,8 @@ function Produtos() {
    useEffect(() => {
   const fetchProducts = async () => {
     try {
-      const response = await fetch("http://localhost:5001/server/produtos/produtos", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
+      // Se quiser filtrar por usuário, adicione o id_usuario na URL
+      const response = await fetch("http://localhost:5001/produtos");
       const data = await response.json();
       setProductData(data);
     } catch (error) {
