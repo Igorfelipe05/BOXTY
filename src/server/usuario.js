@@ -31,7 +31,6 @@ router.post('/usuarios', async (req, res) => {
   }
 });
 
-// Rota para autenticar usuários (removida a lógica de token)
 router.post('/login', async (req, res) => {
   const { nome, senha } = req.body;
 

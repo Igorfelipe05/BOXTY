@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import Header from "../components/Header.jsx/Header";
 import { formatCPF, isValidCPFFormat } from "../utils/formatters";
 import logo from "/public/logo.svg";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
   const {
@@ -10,6 +11,8 @@ function Login() {
     handleSubmit,
     formState: { errors },
   } = useForm();
+
+  const navigate = useNavigate();
 
   const onSubmit = async (data) => {
     try {
@@ -25,6 +28,7 @@ function Login() {
         const { token } = await response.json();
         localStorage.setItem("token", token); // Armazena o token no localStorage
         alert("Login realizado com sucesso!");
+        navigate("/cadastrarProduto")
       } else {
         const error = await response.json();
         alert(`Erro: ${error.error}`);

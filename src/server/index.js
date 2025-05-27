@@ -2,6 +2,7 @@ import express from 'express';
 import produtosRouter from './produtos.js';
 import usuariosRouter from './usuario.js';
 import db from './db.js'; 
+import cors from 'cors';
 
 db.getConnection()
   .then(() => console.log('Conexão com o banco de dados bem-sucedida!'))
@@ -9,6 +10,7 @@ db.getConnection()
   
 const app = express();
 const PORT = 5001;
+app.use(cors());
 
 app.use(express.json());
 

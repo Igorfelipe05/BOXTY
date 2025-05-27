@@ -23,9 +23,9 @@ function Header() {
               <li className='hover:bg-[#2C3E50] px-4 py-2'>
                 <Link to="/" onClick={toggleMenu} className='text-[#E6EDF3] hover:text-[#60A5FA]'>Home</Link>
               </li>
-              <li className='hover:bg-[#2C3E50] px-4 py-2'>
+              {/* <li className='hover:bg-[#2C3E50] px-4 py-2'>
                 <Link to="/login" onClick={toggleMenu} className='text-[#E6EDF3] hover:text-[#60A5FA]'>Login</Link>
-              </li>
+              </li> */}
               <li className='hover:bg-[#2C3E50] px-4 py-2'>
                 <Link to="/sobreNos" onClick={toggleMenu} className='text-[#E6EDF3] hover:text-[#60A5FA]'>Sobre nós</Link>
               </li>
@@ -35,9 +35,9 @@ function Header() {
               <li className='hover:bg-[#2C3E50] px-4 py-2'>
                 <Link to="/produtos" onClick={toggleMenu} className='text-[#E6EDF3] hover:text-[#60A5FA]'>Produtos</Link>
               </li>
-              <li className='hover:bg-[#2C3E50] px-4 py-2'>
+              {/* <li className='hover:bg-[#2C3E50] px-4 py-2'>
                 <Link to="/cadastrarUser" onClick={toggleMenu} className='text-[#E6EDF3] hover:text-[#60A5FA]'>Cadastrar Usuário</Link>
-              </li>
+              </li> */}
             </ul>
           </div>
         )}

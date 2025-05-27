@@ -6,28 +6,38 @@ function Produtos() {
   const [selectedItem, setSelectedItem] = useState(null);
   const [productData, setProductData] = useState([]);
   const [stockFilter, setStockFilter] = useState("all");
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [editQuantity, setEditQuantity] = useState('');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [productToDelete, setProductToDelete] = useState(null);
 
-  const categories = [
-    { id: 1, name: "Móveis", items: ["Sofás", "Mesas", "Cadeiras", "Camas", "Estantes"] },
-  ];
-
-
-
-
+  const categorias = [
+  { id: '1', nome: 'sofas' },
+  { id: '2', nome: 'mesas' },
+  { id: '3', nome: 'Roupas' },
+  { id: '4', nome: 'Alimentos' },
+];
+  console.log(productData);
 
    useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await fetch('http://localhost:5001/produtos');
-        const data = await response.json();
-        setProductData(data);
-      } catch (error) {
-        console.error('Erro ao buscar produtos:', error);
-      }
-    };
+  const fetchProducts = async () => {
+    try {
+      const response = await fetch("http://localhost:5001/server/produtos/produtos", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
-    fetchProducts();
-  }, []);
+      const data = await response.json();
+      setProductData(data);
+    } catch (error) {
+      console.error('Erro ao buscar produtos:', error);
+    }
+  };
+
+  fetchProducts();
+}, []);
 
 
   const handleItemClick = (item) => {
@@ -48,7 +58,63 @@ function Produtos() {
     }
   };
 
+  // Função para editar quantidade do produto
+  const handleEditQuantity = (product) => {
+    setEditingProduct(product);
+    setEditQuantity(product.estoque.toString());
+  };
+
+  // Função para salvar a nova quantidade
+  const handleSaveQuantity = () => {
+    const newQuantity = parseInt(editQuantity);
+    if (isNaN(newQuantity) || newQuantity < 0) {
+      alert('Por favor, insira uma quantidade válida (número maior ou igual a 0)');
+      return;
+    }
+
+    setProductData(prevData => 
+      prevData.map(product => 
+        product.id === editingProduct.id 
+          ? { ...product, estoque: newQuantity }
+          : product
+      )
+    );
+
+    setEditingProduct(null);
+    setEditQuantity('');
+    console.log(`Quantidade do produto ${editingProduct.nome} atualizada para ${newQuantity}`);
+  };
+
+  // Função para cancelar edição
+  const handleCancelEdit = () => {
+    setEditingProduct(null);
+    setEditQuantity('');
+  };
+
+  // Função para confirmar exclusão
+  const handleDeleteProduct = (product) => {
+    setProductToDelete(product);
+    setShowDeleteModal(true);
+  };
+
+  // Função para executar exclusão
+  const confirmDelete = () => {
+    setProductData(prevData => 
+      prevData.filter(product => product.id !== productToDelete.id)
+    );
+    setShowDeleteModal(false);
+    setProductToDelete(null);
+    console.log(`Produto ${productToDelete.nome} excluído`);
+  };
+
+  // Função para cancelar exclusão
+  const cancelDelete = () => {
+    setShowDeleteModal(false);
+    setProductToDelete(null);
+  };
+
   const filteredProducts = getFilteredProducts();
+  console.log("xereca rosa",filteredProducts);
 
   return (
     <div className="flex bg-[#0D1117] min-h-screen text-[#E6EDF3]">
@@ -58,7 +124,8 @@ function Produtos() {
 
         <div className="flex flex-col">
           <div className="flex border-b border-[#2C3E50]">
-            {categories.map((category, index) => (
+            {productData.map((category, index) => (
+              
               <button
                 key={category.id}
                 className={`py-2 px-4 text-sm font-medium ${
@@ -74,7 +141,7 @@ function Produtos() {
           </div>
 
           <div className="mt-4">
-            {categories.map((category, index) => (
+            {productData.map((category, index) => (
               <div
                 key={category.id}
                 className={`${activeTab === index ? "block" : "hidden"}`}
@@ -103,17 +170,17 @@ function Produtos() {
                 </div>
                 <h3 className="text-[#E6EDF3] font-semibold mb-2">Categorias:</h3>
                 <ul className="space-y-2">
-                  {category.items.map((item, itemIndex) => (
+                  {categorias.map((item, itemIndex) => (
                     <li
-                      key={itemIndex}
+                      key={item.id}
                       className={`p-2 rounded cursor-pointer transition-colors ${
-                        selectedItem === item
+                        selectedItem === item.nome
                           ? "bg-[#3B82F6] text-white"
                           : "bg-[#1F2A37] hover:bg-[#60A5FA]"
                       }`}
-                      onClick={() => handleItemClick(item)}
+                      onClick={() => handleitem.nomeClick(item.nome)}
                     >
-                      {item}
+                      {item.nome}
                     </li>
                   ))}
                 </ul>
@@ -144,28 +211,67 @@ function Produtos() {
                       <th className="py-3 px-4 border-b border-[#2C3E50] text-left">Nome</th>
                       <th className="py-3 px-4 border-b border-[#2C3E50] text-left">Categoria</th>
                       <th className="py-3 px-4 border-b border-[#2C3E50] text-left">Preço (R$)</th>
-                      <th className="py-3 px-4 border-b border-[#2C3E50] text-left">Estoque</th>
+                      <th className="py-3 px-4 border-b border-[#2C3E50] text-left">quantidade</th>
                       <th className="py-3 px-4 border-b border-[#2C3E50] text-left">Unidade</th>
                       <th className="py-3 px-4 border-b border-[#2C3E50] text-left">Código de Barras</th>
+                      <th className="py-3 px-4 border-b border-[#2C3E50] text-left">Ações</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredProducts.map((product) => (
                       <tr key={product.id} className="hover:bg-[#2C3E50]">
                         <td className="py-2 px-4 border-b border-[#2C3E50]">{product.id}</td>
-                        <td className="py-2 px-4 border-b border-[#2C3E50]">{product.numeroPedido}</td>
+                        <td className="py-2 px-4 border-b border-[#2C3E50]">{product.codigo_barras}</td>
                         <td className="py-2 px-4 border-b border-[#2C3E50]">{product.nome}</td>
                         <td className="py-2 px-4 border-b border-[#2C3E50]">{product.categoria}</td>
                         <td className="py-2 px-4 border-b border-[#2C3E50]">{product.preco.toFixed(2)}</td>
                         <td className="py-2 px-4 border-b border-[#2C3E50]">
-                          <span className={`px-2 py-1 rounded-full text-xs ${
-                            product.estoque > 0 ? 'bg-[#10B981] text-white' : 'bg-[#EF4444] text-white'
-                          }`}>
-                            {product.estoque}
-                          </span>
+                          {editingProduct && editingProduct.id === product.id ? (
+                            <div className="flex items-center space-x-2">
+                              <input
+                                type="number"
+                                value={editQuantity}
+                                onChange={(e) => setEditQuantity(e.target.value)}
+                                className="w-16 px-2 py-1 bg-[#0D1117] border border-[#2C3E50] rounded text-[#E6EDF3] text-xs"
+                                min="0"
+                              />
+                              <button
+                                onClick={handleSaveQuantity}
+                                className="px-2 py-1 bg-[#10B981] text-white rounded text-xs hover:bg-[#059669]"
+                              >
+                                ✓
+                              </button>
+                              <button
+                                onClick={handleCancelEdit}
+                                className="px-2 py-1 bg-[#EF4444] text-white rounded text-xs hover:bg-[#DC2626]"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          ) : (
+                            <span className={`px-2 py-1 rounded-full text-xs ${
+                              product.estoque > 0 ? 'bg-[#10B981] text-white' : 'bg-[#EF4444] text-white'
+                            }`}>
+                              {product.estoque}
+                            </span>
+                          )}
                         </td>
                         <td className="py-2 px-4 border-b border-[#2C3E50]">{product.unidade}</td>
                         <td className="py-2 px-4 border-b border-[#2C3E50]">{product.codigoBarras}</td>
+                        <td className="py-2 px-4 border-b border-[#2C3E50]">
+                          <button
+                            onClick={() => handleEditQuantity(product)}
+                            className="px-2 py-1 bg-[#10B981] text-white rounded text-xs hover:bg-[#059669]"
+                          >
+                            Editar
+                          </button>
+                          <button
+                            onClick={() => handleDeleteProduct(product)}
+                            className="px-2 py-1 bg-[#EF4444] text-white rounded text-xs hover:bg-[#DC2626]"
+                          >
+                            Excluir
+                          </button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
