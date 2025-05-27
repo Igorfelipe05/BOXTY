@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import Header from "../components/Header.jsx/Header";
 
 function Produtos() {
-  const [activeTab, setActiveTab] = useState(0);
   const [selectedItem, setSelectedItem] = useState(null);
   const [productData, setProductData] = useState([]);
   const [stockFilter, setStockFilter] = useState("all");
@@ -12,58 +11,56 @@ function Produtos() {
   const [productToDelete, setProductToDelete] = useState(null);
 
   const categorias = [
-  { id: '1', nome: 'sofas' },
-  { id: '2', nome: 'mesas' },
-  { id: '3', nome: 'Roupas' },
-  { id: '4', nome: 'Alimentos' },
-];
-  console.log(productData);
+    { id: '1', nome: 'sofas' },
+    { id: '2', nome: 'mesas' },
+    { id: '3', nome: 'Roupas' },
+    { id: '4', nome: 'Alimentos' },
+  ];
 
-   useEffect(() => {
-  const fetchProducts = async () => {
-    try {
-      // Se quiser filtrar por usuário, adicione o id_usuario na URL
-      const response = await fetch("http://localhost:5001/produtos");
-      const data = await response.json();
-      setProductData(data);
-    } catch (error) {
-      console.error('Erro ao buscar produtos:', error);
-    }
-  };
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch("http://localhost:5001/server/produtos/produtos");
+        const data = await response.json();
+        setProductData(data);
+      } catch (error) {
+        console.error('Erro ao buscar produtos:', error);
+      }
+    };
 
-  fetchProducts();
-}, []);
-
+    fetchProducts();
+  }, []);
 
   const handleItemClick = (item) => {
     setSelectedItem(item);
-    setProductData(productData.filter(product => product.categoria === item) || []);
-    console.log(`Carregando dados de ${item}`);
   };
 
   const getFilteredProducts = () => {
-    if (!productData.length) return [];
-    switch (stockFilter) {
-      case "inStock":
-        return productData.filter(product => product.estoque > 0);
-      case "outOfStock":
-        return productData.filter(product => product.estoque === 0);
-      default:
-        return productData;
+    let filtered = productData;
+    
+    if (selectedItem) {
+      filtered = filtered.filter(product => product.categoria === selectedItem);
     }
+
+   if (stockFilter === "inStock") {
+  filtered = filtered.filter(product => product.quantidade > 0);
+} else if (stockFilter === "outOfStock") {
+  filtered = filtered.filter(product => product.quantidade === 0);
+}
+
+
+    return filtered;
   };
 
-  // Função para editar quantidade do produto
   const handleEditQuantity = (product) => {
     setEditingProduct(product);
     setEditQuantity(product.estoque.toString());
   };
 
-  // Função para salvar a nova quantidade
   const handleSaveQuantity = () => {
     const newQuantity = parseInt(editQuantity);
     if (isNaN(newQuantity) || newQuantity < 0) {
-      alert('Por favor, insira uma quantidade válida (número maior ou igual a 0)');
+      alert('Por favor, insira uma quantidade válida');
       return;
     }
 
@@ -77,112 +74,78 @@ function Produtos() {
 
     setEditingProduct(null);
     setEditQuantity('');
-    console.log(`Quantidade do produto ${editingProduct.nome} atualizada para ${newQuantity}`);
   };
 
-  // Função para cancelar edição
   const handleCancelEdit = () => {
     setEditingProduct(null);
     setEditQuantity('');
   };
 
-  // Função para confirmar exclusão
   const handleDeleteProduct = (product) => {
     setProductToDelete(product);
     setShowDeleteModal(true);
   };
 
-  // Função para executar exclusão
   const confirmDelete = () => {
     setProductData(prevData => 
       prevData.filter(product => product.id !== productToDelete.id)
     );
     setShowDeleteModal(false);
     setProductToDelete(null);
-    console.log(`Produto ${productToDelete.nome} excluído`);
   };
 
-  // Função para cancelar exclusão
   const cancelDelete = () => {
     setShowDeleteModal(false);
     setProductToDelete(null);
   };
 
   const filteredProducts = getFilteredProducts();
-  console.log("xereca rosa",filteredProducts);
 
   return (
     <div className="flex bg-[#0D1117] min-h-screen text-[#E6EDF3]">
       <div className="bg-[#161B22] p-4 w-64 h-screen shadow-lg">
         <Header />
-        <h1 className="text-[#E6EDF3] text-xl font-bold mb-6">Categorias de Estoque</h1>
+        <h1 className="text-xl font-bold mb-6">Categorias de Estoque</h1>
 
-        <div className="flex flex-col">
-          <div className="flex border-b border-[#2C3E50]">
-            {productData.map((category, index) => (
-              
-              <button
-                key={category.id}
-                className={`py-2 px-4 text-sm font-medium ${
-                  activeTab === index
-                    ? "text-[#3B82F6] border-b-2 border-[#3B82F6]"
-                    : "text-[#8B949E] hover:text-[#60A5FA]"
-                }`}
-                onClick={() => setActiveTab(index)}
-              >
-                {category.name}
-              </button>
-            ))}
-          </div>
-
-          <div className="mt-4">
-            {productData.map((category, index) => (
+        <div className="mb-4">
+          <h3 className="font-semibold mb-2">Filtrar por Estoque:</h3>
+          <div className="space-y-1">
+            {["all", "inStock", "outOfStock"].map((type) => (
               <div
-                key={category.id}
-                className={`${activeTab === index ? "block" : "hidden"}`}
+                key={type}
+                className={`p-2 rounded cursor-pointer transition-colors ${
+                  stockFilter === type
+                    ? "bg-[#3B82F6] text-white"
+                    : "bg-[#1F2A37] hover:bg-[#60A5FA]"
+                }`}
+                onClick={() => setStockFilter(type)}
               >
-                <div className="mb-4">
-                  <h3 className="text-[#E6EDF3] font-semibold mb-2">Filtrar por:</h3>
-                  <div className="space-y-1">
-                    {["all", "inStock", "outOfStock"].map((type) => (
-                      <div
-                        key={type}
-                        className={`p-2 rounded cursor-pointer transition-colors ${
-                          stockFilter === type
-                            ? "bg-[#3B82F6] text-white"
-                            : "bg-[#1F2A37] hover:bg-[#60A5FA]"
-                        }`}
-                        onClick={() => setStockFilter(type)}
-                      >
-                        {type === "all"
-                          ? "Todos"
-                          : type === "inStock"
-                          ? "Em Estoque"
-                          : "Sem Estoque"}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <h3 className="text-[#E6EDF3] font-semibold mb-2">Categorias:</h3>
-                <ul className="space-y-2">
-                  {categorias.map((item, itemIndex) => (
-                    <li
-                      key={item.id}
-                      className={`p-2 rounded cursor-pointer transition-colors ${
-                        selectedItem === item.nome
-                          ? "bg-[#3B82F6] text-white"
-                          : "bg-[#1F2A37] hover:bg-[#60A5FA]"
-                      }`}
-                      onClick={() => handleitem.nomeClick(item.nome)}
-                    >
-                      {item.nome}
-                    </li>
-                  ))}
-                </ul>
+                {type === "all"
+                  ? "Todos"
+                  : type === "inStock"
+                  ? "Em Estoque"
+                  : "Sem Estoque"}
               </div>
             ))}
           </div>
         </div>
+
+        <h3 className="font-semibold mb-2">Categorias:</h3>
+        <ul className="space-y-2">
+          {categorias.map((item) => (
+            <li
+              key={item.id}
+              className={`p-2 rounded cursor-pointer transition-colors ${
+                selectedItem === item.nome
+                  ? "bg-[#3B82F6] text-white"
+                  : "bg-[#1F2A37] hover:bg-[#60A5FA]"
+              }`}
+              onClick={() => handleItemClick(item.nome)}
+            >
+              {item.nome}
+            </li>
+          ))}
+        </ul>
       </div>
 
       <div className="flex-1 p-6">
@@ -201,26 +164,26 @@ function Produtos() {
                 <table className="min-w-full bg-[#1F2A37] border border-[#2C3E50] shadow-md rounded-lg">
                   <thead>
                     <tr className="bg-[#161B22]">
-                      <th className="py-3 px-4 border-b border-[#2C3E50] text-left">ID</th>
-                      <th className="py-3 px-4 border-b border-[#2C3E50] text-left">Nº Pedido</th>
-                      <th className="py-3 px-4 border-b border-[#2C3E50] text-left">Nome</th>
-                      <th className="py-3 px-4 border-b border-[#2C3E50] text-left">Categoria</th>
-                      <th className="py-3 px-4 border-b border-[#2C3E50] text-left">Preço (R$)</th>
-                      <th className="py-3 px-4 border-b border-[#2C3E50] text-left">quantidade</th>
-                      <th className="py-3 px-4 border-b border-[#2C3E50] text-left">Unidade</th>
-                      <th className="py-3 px-4 border-b border-[#2C3E50] text-left">Código de Barras</th>
-                      <th className="py-3 px-4 border-b border-[#2C3E50] text-left">Ações</th>
+                      <th className="py-3 px-4">ID</th>
+                      <th className="py-3 px-4">Nº Pedido</th>
+                      <th className="py-3 px-4">Nome</th>
+                      <th className="py-3 px-4">Categoria</th>
+                      <th className="py-3 px-4">Preço (R$)</th>
+                      <th className="py-3 px-4">Quantidade</th>
+                      <th className="py-3 px-4">Unidade</th>
+                      <th className="py-3 px-4">Código de Barras</th>
+                      <th className="py-3 px-4">Ações</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredProducts.map((product) => (
                       <tr key={product.id} className="hover:bg-[#2C3E50]">
-                        <td className="py-2 px-4 border-b border-[#2C3E50]">{product.id}</td>
-                        <td className="py-2 px-4 border-b border-[#2C3E50]">{product.codigo_barras}</td>
-                        <td className="py-2 px-4 border-b border-[#2C3E50]">{product.nome}</td>
-                        <td className="py-2 px-4 border-b border-[#2C3E50]">{product.categoria}</td>
-                        <td className="py-2 px-4 border-b border-[#2C3E50]">{product.preco.toFixed(2)}</td>
-                        <td className="py-2 px-4 border-b border-[#2C3E50]">
+                        <td className="py-2 px-4">{product.id}</td>
+                        <td className="py-2 px-4">{product.codigo_barras}</td>
+                        <td className="py-2 px-4">{product.nome}</td>
+                        <td className="py-2 px-4">{product.categoria}</td>
+                        <td className="py-2 px-4">{product.preco.toFixed(2)}</td>
+                        <td className="py-2 px-4">
                           {editingProduct && editingProduct.id === product.id ? (
                             <div className="flex items-center space-x-2">
                               <input
@@ -251,9 +214,9 @@ function Produtos() {
                             </span>
                           )}
                         </td>
-                        <td className="py-2 px-4 border-b border-[#2C3E50]">{product.unidade}</td>
-                        <td className="py-2 px-4 border-b border-[#2C3E50]">{product.codigoBarras}</td>
-                        <td className="py-2 px-4 border-b border-[#2C3E50]">
+                        <td className="py-2 px-4">{product.unidade}</td>
+                        <td className="py-2 px-4">{product.codigo_barras}</td>
+                        <td className="py-2 px-4 space-x-2">
                           <button
                             onClick={() => handleEditQuantity(product)}
                             className="px-2 py-1 bg-[#10B981] text-white rounded text-xs hover:bg-[#059669]"
