@@ -44,8 +44,8 @@ const onSubmit = async (data) => {
   const categorias = [
   { id: '1', nome: 'sofas' },
   { id: '2', nome: 'mesas' },
-  { id: '3', nome: 'Roupas' },
-  { id: '4', nome: 'Alimentos' },
+  { id: '3', nome: ' Guarda Roupas' },
+  { id: '4', nome: 'comoda' },
 ];
 
   return (

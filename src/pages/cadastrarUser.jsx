@@ -43,11 +43,7 @@ const onSubmit = async (data) => {
 
   const cpf = watch("cpf");
 
-  // const handleCPFChange = (e) => {
-  //   const { value } = e.target;
-  //   const formattedValue = formatCPF(value);
-  //   setValue("cpf", formattedValue);
-  // };
+
 
   return (
     <div> 
@@ -80,21 +76,6 @@ const onSubmit = async (data) => {
           />
           {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
 
-          {/* <label className="block mt-4 mb-2 text-[#CBD5E1]">CPF:</label>
-          <input
-            type="text"
-            maxLength={14}
-            {...register("cpf", { 
-              required: "CPF é obrigatório",
-              validate: {
-                format: value => isValidCPFFormat(value) || "CPF deve estar no formato XXX.XXX.XXX-XX"
-              }
-            })}
-            className="w-full p-2 mb-2 rounded-lg bg-[#0D1117] border border-[#3B82F6] text-[#E6EDF3] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3B82F6]"
-            placeholder="000.000.000-00"
-            onChange={handleCPFChange}
-          />
-          {errors.cpf && <p className="text-red-500 text-sm">{errors.cpf.message}</p>} */}
 
           <label className="block mt-4 mb-2 text-[#CBD5E1]">Senha:</label>
           <input

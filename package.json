@@ -20,7 +20,7 @@
     "mysql2": "^3.14.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-hook-form": "^7.56.1",
+    "react-hook-form": "^7.56.4",
     "react-router-dom": "^7.4.0"
   },
   "devDependencies": {
