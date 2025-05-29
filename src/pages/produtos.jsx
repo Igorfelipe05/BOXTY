@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Header from "../components/Header.jsx/Header";
+import {formatarValorEmReal} from "../utils/formatters";
 
 function Produtos() {
   const [activeTab, setActiveTab] = useState(0);
@@ -8,12 +9,13 @@ function Produtos() {
   const [stockFilter, setStockFilter] = useState("all");
   const [editingProductId, setEditingProductId] = useState(null);
   const [editQuantity, setEditQuantity] = useState('');
+  const [editPrice, setEditPrice] = useState('');
 
   const categorias = [
-    { id: '1', nome: 'sofas' },
-    { id: '2', nome: 'mesas' },
+    { id: '1', nome: 'Sofás' },
+    { id: '2', nome: 'Mesas' },
     { id: '3', nome: 'Guarda Roupas' },
-    { id: '4', nome: 'comoda' },
+    { id: '4', nome: 'Comoda' },
   ];
 
   useEffect(() => {
@@ -30,10 +32,10 @@ function Produtos() {
   }, []);
 
   useEffect(() => {
-    const lowStockProducts = productData.filter(p => p.quantidade > 0 && p.quantidade < 5);
+    const lowStockProducts = productData.filter(p => p.quantidade > 0 && p.quantidade <= 5);
     if (lowStockProducts.length > 0) {
       const nomes = lowStockProducts.map(p => p.nome).join(', ');
-      alert(`Atenção! Estoque baixo dos produtos: ${nomes}`);
+      // alert(`Atenção! Estoque baixo dos produtos: ${nomes}`);
     }
   }, [productData]);
 
@@ -56,6 +58,7 @@ function Produtos() {
   const handleEdit = (product) => {
     setEditingProductId(product.id);
     setEditQuantity(product.quantidade.toString());
+    setEditPrice(product.preco.toString());
   };
 
   const handleUpdate = async () => {
@@ -64,7 +67,8 @@ function Produtos() {
 
     const updatedProduct = {
       ...product,
-      quantidade: Number(editQuantity)
+      quantidade: Number(editQuantity),
+      preco: Number(editPrice)
     };
 
     try {
@@ -84,11 +88,12 @@ function Produtos() {
 
         setEditingProductId(null);
         setEditQuantity('');
+        setEditPrice('');
       } else {
         alert('Erro ao atualizar produto');
       }
     } catch (error) {
-      console.error('Erro ao atualizar quantidade:', error);
+      console.error('Erro ao atualizar produto:', error);
     }
   };
 
@@ -98,13 +103,22 @@ function Produtos() {
       filtered = filtered.filter(p => p.categoria === selectedItem);
     }
     if (stockFilter === "inStock") {
-      return filtered.filter(p => p.quantidade > 0);
+      return filtered.filter(p => p.quantidade > 5);
     }
     if (stockFilter === "outOfStock") {
-      return filtered.filter(p => p.quantidade === 0);
+      return filtered.filter(p => p.quantidade <= 5);
     }
     return filtered;
   }, [productData, selectedItem, stockFilter]);
+
+  // Função para verificar se há produtos com baixa quantidade na categoria selecionada
+  const hasLowStockProducts = useCallback(() => {
+    let filtered = productData;
+    if (selectedItem) {
+      filtered = filtered.filter(p => p.categoria === selectedItem);
+    }
+    return filtered.some(p => p.quantidade <= 5);
+  }, [productData, selectedItem]);
 
   return (
     <div className="flex bg-[#0D1117] min-h-screen text-[#E6EDF3]">
@@ -146,7 +160,7 @@ function Produtos() {
                 Produtos: <span className="text-[#3B82F6] capitalize">{selectedItem}</span>
                 {stockFilter !== "all" && (
                   <span className="block text-xl font-normal text-[#60A5FA] mt-2">
-                    ({stockFilter === "inStock" ? "Em quantidade" : "Sem quantidade"})
+                    ({stockFilter === "inStock" ? "Em quantidade" : "Baixa quantidade"})
                   </span>
                 )}
               </h2>
@@ -155,11 +169,12 @@ function Produtos() {
                 {[
                   { key: "all", label: "Todos" },
                   { key: "inStock", label: "Em quantidade" },
-                  { key: "outOfStock", label: "Sem quantidade" }
+                  { key: "outOfStock", label: "Baixa quantidade" }
                 ].map(filter => (
                   <button
                     key={filter.key}
-                    className={`px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
+
+                    className={`px-6 py-3 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
                       stockFilter === filter.key
                         ? "bg-[#3B82F6] text-white shadow-lg transform scale-105"
                         : "bg-[#1F2A37] text-[#8B949E] hover:bg-[#60A5FA] hover:text-white hover:transform hover:scale-102"
@@ -167,6 +182,19 @@ function Produtos() {
                     onClick={() => setStockFilter(filter.key)}
                   >
                     {filter.label}
+                    {filter.key === "outOfStock" && hasLowStockProducts() && (
+                      <svg 
+                        className="w-5 h-5 text-red-500" 
+                        fill="currentColor" 
+                        viewBox="0 0 20 20"
+                      >
+                        <path 
+                          fillRule="evenodd" 
+                          d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" 
+                          clipRule="evenodd" 
+                        />
+                      </svg>
+                    )}
                   </button>
                 ))}
               </div>
@@ -196,7 +224,18 @@ function Produtos() {
                       <td className="py-4 px-6 text-center border-b border-[#2C3E50]/50 font-medium">{product.nome}</td>
                       <td className="py-4 px-6 text-center border-b border-[#2C3E50]/50 capitalize">{product.categoria}</td>
                       <td className="py-4 px-6 text-center border-b border-[#2C3E50]/50 font-semibold text-green-400">
-                        R$ {product.preco}
+                        {editingProductId === product.id ? (
+                          <input
+                            type="number"
+                            step="0.01"
+                            value={editPrice}
+                            onChange={e => setEditPrice(e.target.value)}
+                            className="w-24 px-3 py-2 bg-[#0D1117] border border-[#3B82F6] rounded-lg text-center text-[#E6EDF3] focus:outline-none focus:ring-2 focus:ring-[#3B82F6]"
+                            placeholder="0.00"
+                          />
+                        ) : (
+                          formatarValorEmReal(product.preco)
+                        )}
                       </td>
                       <td className="py-4 px-6 text-center border-b border-[#2C3E50]/50">
                         {editingProductId === product.id ? (
@@ -208,9 +247,7 @@ function Produtos() {
                           />
                         ) : (
                           <span className={`font-semibold ${
-                            product.quantidade === 0 ? 'text-red-400' : 
-                            product.quantidade < 5 ? 'text-red-400' : 
-                            'text-green-400'
+                            product.quantidade <= 5 ? 'text-red-400' : 'text-green-400'
                           }`}>
                             {product.quantidade}
                           </span>
@@ -226,7 +263,11 @@ function Produtos() {
                               Salvar
                             </button>
                             <button 
-                              onClick={() => setEditingProductId(null)} 
+                              onClick={() => {
+                                setEditingProductId(null);
+                                setEditQuantity('');
+                                setEditPrice('');
+                              }} 
                               className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors duration-200"
                             >
                               Cancelar
