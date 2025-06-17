@@ -1,13 +1,18 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Bars3Icon } from "@heroicons/react/24/outline";
 
 function Header() {
   const [showMenu, setShowMenu] = useState(false);
+  const location = useLocation();
 
   const toggleMenu = () => {
     setShowMenu(!showMenu);
   };
+
+  // Rotas onde o menu deve ser limitado
+  const hiddenRoutes = ["/cadastrarUser"];
+  const isMenuLimited = hiddenRoutes.includes(location.pathname);
 
   return (
     <div className='bg-[#161B22] py-2 flex items-center justify-between px-4 relative shadow-md'>
@@ -23,21 +28,20 @@ function Header() {
               <li className='hover:bg-[#2C3E50] px-4 py-2'>
                 <Link to="/" onClick={toggleMenu} className='text-[#E6EDF3] hover:text-[#60A5FA]'>Home</Link>
               </li>
-              {/* <li className='hover:bg-[#2C3E50] px-4 py-2'>
-                <Link to="/login" onClick={toggleMenu} className='text-[#E6EDF3] hover:text-[#60A5FA]'>Login</Link>
-              </li> */}
-              <li className='hover:bg-[#2C3E50] px-4 py-2'>
-                <Link to="/sobreNos" onClick={toggleMenu} className='text-[#E6EDF3] hover:text-[#60A5FA]'>Sobre nós</Link>
-              </li>
-              <li className='hover:bg-[#2C3E50] px-4 py-2'>
-                <Link to="/cadastrarProduto" onClick={toggleMenu} className='text-[#E6EDF3] hover:text-[#60A5FA]'>Cadastrar Produto</Link>
-              </li>
-              <li className='hover:bg-[#2C3E50] px-4 py-2'>
-                <Link to="/produtos" onClick={toggleMenu} className='text-[#E6EDF3] hover:text-[#60A5FA]'>Produtos</Link>
-              </li>
-              {/* <li className='hover:bg-[#2C3E50] px-4 py-2'>
-                <Link to="/cadastrarUser" onClick={toggleMenu} className='text-[#E6EDF3] hover:text-[#60A5FA]'>Cadastrar Usuário</Link>
-              </li> */}
+
+              {!isMenuLimited && (
+                <>
+                  <li className='hover:bg-[#2C3E50] px-4 py-2'>
+                    <Link to="/sobreNos" onClick={toggleMenu} className='text-[#E6EDF3] hover:text-[#60A5FA]'>Sobre nós</Link>
+                  </li>
+                  <li className='hover:bg-[#2C3E50] px-4 py-2'>
+                    <Link to="/cadastrarProduto" onClick={toggleMenu} className='text-[#E6EDF3] hover:text-[#60A5FA]'>Cadastrar Produto</Link>
+                  </li>
+                  <li className='hover:bg-[#2C3E50] px-4 py-2'>
+                    <Link to="/produtos" onClick={toggleMenu} className='text-[#E6EDF3] hover:text-[#60A5FA]'>Produtos</Link>
+                  </li>
+                </>
+              )}
             </ul>
           </div>
         )}
