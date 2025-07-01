@@ -2,27 +2,48 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import Header from "../components/Header.jsx/Header"; 
 import { formatCPF, isValidCPFFormat } from "../utils/formatters";
+import { useNavigate } from "react-router-dom";
 
 function CadastrarUser() {
   const {
     register,
+    reset,
     handleSubmit,
     formState: { errors },
     setValue,
     watch,
   } = useForm();
+  const navigate = useNavigate();
 
-  const onSubmit = (data) => {
-    console.log("Dados enviados:", data);
-  };
+ // ...existing code...
+const onSubmit = async (data) => {
+  try {
+    const response = await fetch("http://localhost:5001/server/usuarios/usuarios", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    const result = await response.json();
+    if (response.ok) {
+      alert(result.message);
+      // Redirecione ou limpe o formulário se quiser
+      navigate("/login")
+      reset();
+    } else {
+      alert(result.error || "Erro ao cadastrar usuário");
+    }
+  } catch (error) {
+    alert("Erro ao conectar com o servidor");
+    console.error(error);
+  }
+};
 
   const cpf = watch("cpf");
 
-  const handleCPFChange = (e) => {
-    const { value } = e.target;
-    const formattedValue = formatCPF(value);
-    setValue("cpf", formattedValue);
-  };
+
 
   return (
     <div> 
@@ -55,21 +76,6 @@ function CadastrarUser() {
           />
           {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
 
-          <label className="block mt-4 mb-2 text-[#CBD5E1]">CPF:</label>
-          <input
-            type="text"
-            maxLength={14}
-            {...register("cpf", { 
-              required: "CPF é obrigatório",
-              validate: {
-                format: value => isValidCPFFormat(value) || "CPF deve estar no formato XXX.XXX.XXX-XX"
-              }
-            })}
-            className="w-full p-2 mb-2 rounded-lg bg-[#0D1117] border border-[#3B82F6] text-[#E6EDF3] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3B82F6]"
-            placeholder="000.000.000-00"
-            onChange={handleCPFChange}
-          />
-          {errors.cpf && <p className="text-red-500 text-sm">{errors.cpf.message}</p>}
 
           <label className="block mt-4 mb-2 text-[#CBD5E1]">Senha:</label>
           <input

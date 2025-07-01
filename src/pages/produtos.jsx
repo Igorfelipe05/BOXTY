@@ -1,188 +1,340 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Header from "../components/Header.jsx/Header";
+import {formatarValorEmReal} from "../utils/formatters";
 
 function Produtos() {
   const [activeTab, setActiveTab] = useState(0);
   const [selectedItem, setSelectedItem] = useState(null);
   const [productData, setProductData] = useState([]);
   const [stockFilter, setStockFilter] = useState("all");
+  const [editingProductId, setEditingProductId] = useState(null);
+  const [editQuantity, setEditQuantity] = useState('');
+  const [editPrice, setEditPrice] = useState('');
 
-  const categories = [
-    { id: 1, name: "Móveis", items: ["Sofás", "Mesas", "Cadeiras", "Camas", "Estantes"] },
-  ];
+const categorias = [
+  { id: '1', nome: 'Sofás' },
+  { id: '2', nome: 'Mesas de Jantar' },
+  { id: '3', nome: 'Guarda-Roupas' },
+  { id: '4', nome: 'Cômodas' },
+  { id: '5', nome: 'Camas' },
+  { id: '6', nome: 'Criados-Mudos' },
+  { id: '7', nome: 'Poltronas' },
+  { id: '8', nome: 'Racks para TV' },
+  { id: '9', nome: 'Painéis para TV' },
+  { id: '10', nome: 'Estantes' },
+  { id: '11', nome: 'Aparadores' },
+  { id: '12', nome: 'Escrivaninhas' },
+  { id: '13', nome: 'Cadeiras' },
+  { id: '14', nome: 'Bancos' },
+  { id: '15', nome: 'Bares e Adegas' },
+  { id: '16', nome: 'Buffets' },
+  { id: '17', nome: 'Mesas de Centro' },
+  { id: '18', nome: 'Mesas Laterais' },
+  { id: '19', nome: 'Penteadeiras' },
+  { id: '20', nome: 'Beliches e Treliches' },
+  { id: '21', nome: 'Colchões' },
+  { id: '22', nome: 'Sapateiras' },
+  { id: '23', nome: 'Armários Multiuso' },
+  { id: '24', nome: 'Camas Box' },
+  { id: '25', nome: 'Camas Auxiliares' }
+];
 
-  const productDatabase = {
-    "Sofás": [
-      { id: 1, numeroPedido: "M001", nome: "Sofá 3 Lugares", categoria: "Sofás", preco: 1200.00, estoque: 5, unidade: "unidade", codigoBarras: "7890000000001"},
-      { id: 2, numeroPedido: "M002", nome: "Sofá Retrátil", categoria: "Sofás", preco: 1800.00, estoque: 2, unidade: "unidade", codigoBarras: "7890000000002",  }
-    ],
-    "Mesas": [
-      { id: 1, numeroPedido: "M010", nome: "Mesa de Jantar", categoria: "Mesas", preco: 900.00, estoque: 3, unidade: "unidade", codigoBarras: "7890000000010",  },
-      { id: 2, numeroPedido: "M011", nome: "Mesa de Centro", categoria: "Mesas", preco: 400.00, estoque: 4, unidade: "unidade", codigoBarras: "7890000000011",  }
-    ],
-    "Cadeiras": [
-      { id: 1, numeroPedido: "M020", nome: "Cadeira de Escritório", categoria: "Cadeiras", preco: 350.00, estoque: 10, unidade: "unidade", codigoBarras: "7890000000020",  },
-      { id: 2, numeroPedido: "M021", nome: "Cadeira de Madeira", categoria: "Cadeiras", preco: 200.00, estoque: 0, unidade: "unidade", codigoBarras: "7890000000021",  }
-    ],
-    "Camas": [
-      { id: 1, numeroPedido: "M030", nome: "Cama de Casal", categoria: "Camas", preco: 1500.00, estoque: 1, unidade: "unidade", codigoBarras: "7890000000030",  },
-      { id: 2, numeroPedido: "M031", nome: "Cama Solteiro", categoria: "Camas", preco: 1000.00, estoque: 3, unidade: "unidade", codigoBarras: "7890000000031",  }
-    ],
-    "Estantes": [
-      { id: 1, numeroPedido: "M040", nome: "Estante de Livros", categoria: "Estantes", preco: 600.00, estoque: 2, unidade: "unidade", codigoBarras: "7890000000040",  },
-      { id: 2, numeroPedido: "M041", nome: "Estante Modular", categoria: "Estantes", preco: 850.00, estoque: 0, unidade: "unidade", codigoBarras: "7890000000041",  }
-    ]
-  };
 
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch("http://localhost:5001/server/produtos/produtos");
+        const data = await response.json();
+        setProductData(data);
+      } catch (error) {
+        console.error('Erro ao buscar produtos:', error);
+      }
+    };
+    fetchProducts();
+  }, []);
 
-  const handleItemClick = (item) => {
-    setSelectedItem(item);
-    setProductData(productDatabase[item] || []);
-    console.log(`Carregando dados de ${item}`);
-  };
+  useEffect(() => {
+    const lowStockProducts = productData.filter(p => p.quantidade > 0 && p.quantidade <= 5);
+    if (lowStockProducts.length > 0) {
+      const nomes = lowStockProducts.map(p => p.nome).join(', ');
+      // alert(`Atenção! Estoque baixo dos produtos: ${nomes}`);
+    }
+  }, [productData]);
 
-  const getFilteredProducts = () => {
-    if (!productData.length) return [];
-    switch (stockFilter) {
-      case "inStock":
-        return productData.filter(product => product.estoque > 0);
-      case "outOfStock":
-        return productData.filter(product => product.estoque === 0);
-      default:
-        return productData;
+  const handleDelete = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:5001/server/produtos/produtos/${id}`, {
+        method: 'DELETE',
+      });
+      if (response.ok) {
+        setProductData(prev => prev.filter(product => product.id !== id));
+        alert('Produto excluído com sucesso!');
+      } else {
+        alert('Erro ao excluir produto');
+      }
+    } catch (error) {
+      console.error('Erro ao excluir produto:', error);
     }
   };
 
-  const filteredProducts = getFilteredProducts();
+  const handleEdit = (product) => {
+    setEditingProductId(product.id);
+    setEditQuantity(product.quantidade.toString());
+    setEditPrice(product.preco.toString());
+  };
+
+  const handleUpdate = async () => {
+    const product = productData.find(p => p.id === editingProductId);
+    if (!product) return;
+
+    const updatedProduct = {
+      ...product,
+      quantidade: Number(editQuantity),
+      preco: Number(editPrice)
+    };
+
+    try {
+      const response = await fetch(`http://localhost:5001/server/produtos/produtos/${editingProductId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedProduct),
+      });
+
+      if (response.ok) {
+        const newProductData = productData.map(p =>
+          p.id === editingProductId ? updatedProduct : p
+        );
+        setProductData(newProductData);
+
+        alert('Produto editado com sucesso!');
+
+        setEditingProductId(null);
+        setEditQuantity('');
+        setEditPrice('');
+      } else {
+        alert('Erro ao atualizar produto');
+      }
+    } catch (error) {
+      console.error('Erro ao atualizar produto:', error);
+    }
+  };
+
+  const filteredProducts = useCallback(() => {
+    let filtered = productData;
+    if (selectedItem) {
+      filtered = filtered.filter(p => p.categoria === selectedItem);
+    }
+    if (stockFilter === "inStock") {
+      return filtered.filter(p => p.quantidade > 5);
+    }
+    if (stockFilter === "outOfStock") {
+      return filtered.filter(p => p.quantidade <= 5);
+    }
+    return filtered;
+  }, [productData, selectedItem, stockFilter]);
+
+  // Função para verificar se há produtos com baixa quantidade na categoria selecionada
+  const hasLowStockProducts = useCallback(() => {
+    let filtered = productData;
+    if (selectedItem) {
+      filtered = filtered.filter(p => p.categoria === selectedItem);
+    }
+    return filtered.some(p => p.quantidade <= 5);
+  }, [productData, selectedItem]);
 
   return (
     <div className="flex bg-[#0D1117] min-h-screen text-[#E6EDF3]">
-      <div className="bg-[#161B22] p-4 w-64 h-screen shadow-lg">
-        <Header />
-        <h1 className="text-[#E6EDF3] text-xl font-bold mb-6">Categorias de Estoque</h1>
+      <div className="bg-[#161B22] w-80 h-screen shadow-xl border-r border-[#2C3E50]">
+        <div className="p-6">
+          <Header />
+          <div className="mt-8">
+            <h1 className="text-[#E6EDF3] text-2xl font-bold mb-8 text-center">
+              Categorias de Estoque
+            </h1>
 
-        <div className="flex flex-col">
-          <div className="flex border-b border-[#2C3E50]">
-            {categories.map((category, index) => (
-              <button
-                key={category.id}
-                className={`py-2 px-4 text-sm font-medium ${
-                  activeTab === index
-                    ? "text-[#3B82F6] border-b-2 border-[#3B82F6]"
-                    : "text-[#8B949E] hover:text-[#60A5FA]"
-                }`}
-                onClick={() => setActiveTab(index)}
-              >
-                {category.name}
-              </button>
-            ))}
-          </div>
-
-          <div className="mt-4">
-            {categories.map((category, index) => (
-              <div
-                key={category.id}
-                className={`${activeTab === index ? "block" : "hidden"}`}
-              >
-                <div className="mb-4">
-                  <h3 className="text-[#E6EDF3] font-semibold mb-2">Filtrar por:</h3>
-                  <div className="space-y-1">
-                    {["all", "inStock", "outOfStock"].map((type) => (
-                      <div
-                        key={type}
-                        className={`p-2 rounded cursor-pointer transition-colors ${
-                          stockFilter === type
-                            ? "bg-[#3B82F6] text-white"
-                            : "bg-[#1F2A37] hover:bg-[#60A5FA]"
-                        }`}
-                        onClick={() => setStockFilter(type)}
-                      >
-                        {type === "all"
-                          ? "Todos"
-                          : type === "inStock"
-                          ? "Em Estoque"
-                          : "Sem Estoque"}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <h3 className="text-[#E6EDF3] font-semibold mb-2">Categorias:</h3>
-                <ul className="space-y-2">
-                  {category.items.map((item, itemIndex) => (
-                    <li
-                      key={itemIndex}
-                      className={`p-2 rounded cursor-pointer transition-colors ${
-                        selectedItem === item
-                          ? "bg-[#3B82F6] text-white"
-                          : "bg-[#1F2A37] hover:bg-[#60A5FA]"
-                      }`}
-                      onClick={() => handleItemClick(item)}
-                    >
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+            <div className="space-y-2">
+              {categorias.map((category, index) => (
+                <button
+                  key={category.id}
+                  className={`w-full py-4 px-6 text-left font-medium rounded-lg transition-all duration-200 ${
+                    activeTab === index
+                      ? "bg-[#3B82F6] text-white shadow-lg transform scale-105"
+                      : "text-[#8B949E] hover:text-[#60A5FA] hover:bg-[#1F2A37] hover:transform hover:scale-102"
+                  }`}
+                  onClick={() => {
+                    setActiveTab(index);
+                    setSelectedItem(category.nome);
+                  }}
+                >
+                  <span className="capitalize text-lg">{category.nome}</span>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="flex-1 p-6">
+      <div className="flex-1 p-8">
         {selectedItem ? (
-          <div>
-            <h2 className="text-2xl font-bold mb-4">
-              Produtos: {selectedItem}
-              {stockFilter !== "all" && (
-                <span className="ml-2 text-lg font-normal text-[#60A5FA]">
-                  ({stockFilter === "inStock" ? "Em Estoque" : "Sem Estoque"})
-                </span>
-              )}
-            </h2>
-            {filteredProducts.length > 0 ? (
-              <div className="overflow-x-auto">
-                <table className="min-w-full bg-[#1F2A37] border border-[#2C3E50] shadow-md rounded-lg">
-                  <thead>
-                    <tr className="bg-[#161B22]">
-                      <th className="py-3 px-4 border-b border-[#2C3E50] text-left">ID</th>
-                      <th className="py-3 px-4 border-b border-[#2C3E50] text-left">Nº Pedido</th>
-                      <th className="py-3 px-4 border-b border-[#2C3E50] text-left">Nome</th>
-                      <th className="py-3 px-4 border-b border-[#2C3E50] text-left">Categoria</th>
-                      <th className="py-3 px-4 border-b border-[#2C3E50] text-left">Preço (R$)</th>
-                      <th className="py-3 px-4 border-b border-[#2C3E50] text-left">Estoque</th>
-                      <th className="py-3 px-4 border-b border-[#2C3E50] text-left">Unidade</th>
-                      <th className="py-3 px-4 border-b border-[#2C3E50] text-left">Código de Barras</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredProducts.map((product) => (
-                      <tr key={product.id} className="hover:bg-[#2C3E50]">
-                        <td className="py-2 px-4 border-b border-[#2C3E50]">{product.id}</td>
-                        <td className="py-2 px-4 border-b border-[#2C3E50]">{product.numeroPedido}</td>
-                        <td className="py-2 px-4 border-b border-[#2C3E50]">{product.nome}</td>
-                        <td className="py-2 px-4 border-b border-[#2C3E50]">{product.categoria}</td>
-                        <td className="py-2 px-4 border-b border-[#2C3E50]">{product.preco.toFixed(2)}</td>
-                        <td className="py-2 px-4 border-b border-[#2C3E50]">
-                          <span className={`px-2 py-1 rounded-full text-xs ${
-                            product.estoque > 0 ? 'bg-[#10B981] text-white' : 'bg-[#EF4444] text-white'
-                          }`}>
-                            {product.estoque}
-                          </span>
-                        </td>
-                        <td className="py-2 px-4 border-b border-[#2C3E50]">{product.unidade}</td>
-                        <td className="py-2 px-4 border-b border-[#2C3E50]">{product.codigoBarras}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+          <div className="max-w-7xl mx-auto">
+            <div className="mb-8">
+              <h2 className="text-3xl font-bold mb-6 text-center">
+                Produtos: <span className="text-[#3B82F6] capitalize">{selectedItem}</span>
+                {stockFilter !== "all" && (
+                  <span className="block text-xl font-normal text-[#60A5FA] mt-2">
+                    ({stockFilter === "inStock" ? "Em quantidade" : "Baixa quantidade"})
+                  </span>
+                )}
+              </h2>
+
+              <div className="flex justify-center gap-4 mb-6">
+                {[
+                  { key: "all", label: "Todos" },
+                  { key: "inStock", label: "Em quantidade" },
+                  { key: "outOfStock", label: "Baixa quantidade" }
+                ].map(filter => (
+                  <button
+                    key={filter.key}
+
+                    className={`px-6 py-3 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
+                      stockFilter === filter.key
+                        ? "bg-[#3B82F6] text-white shadow-lg transform scale-105"
+                        : "bg-[#1F2A37] text-[#8B949E] hover:bg-[#60A5FA] hover:text-white hover:transform hover:scale-102"
+                    }`}
+                    onClick={() => setStockFilter(filter.key)}
+                  >
+                    {filter.label}
+                    {filter.key === "outOfStock" && hasLowStockProducts() && (
+                      <svg 
+                        className="w-5 h-5 text-red-500" 
+                        fill="currentColor" 
+                        viewBox="0 0 20 20"
+                      >
+                        <path 
+                          fillRule="evenodd" 
+                          d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" 
+                          clipRule="evenodd" 
+                        />
+                      </svg>
+                    )}
+                  </button>
+                ))}
               </div>
-            ) : (
-              <p className="text-[#8B949E]">Nenhum produto encontrado para esta categoria com o filtro selecionado.</p>
-            )}
+            </div>
+
+            <div className="bg-[#1F2A37] rounded-xl shadow-2xl overflow-hidden border border-[#2C3E50]">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-[#161B22]">
+                    <th className="py-4 px-6 text-center font-semibold text-[#E6EDF3] border-b border-[#2C3E50]">ID</th>
+                    <th className="py-4 px-6 text-center font-semibold text-[#E6EDF3] border-b border-[#2C3E50]">Nome</th>
+                    <th className="py-4 px-6 text-center font-semibold text-[#E6EDF3] border-b border-[#2C3E50]">Categoria</th>
+                    <th className="py-4 px-6 text-center font-semibold text-[#E6EDF3] border-b border-[#2C3E50]">Preço</th>
+                    <th className="py-4 px-6 text-center font-semibold text-[#E6EDF3] border-b border-[#2C3E50]">Quantidade</th>
+                    <th className="py-4 px-6 text-center font-semibold text-[#E6EDF3] border-b border-[#2C3E50]">Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredProducts().map((product, index) => (
+                    <tr 
+                      key={product.id} 
+                      className={`hover:bg-[#2C3E50] transition-colors duration-200 ${
+                        index % 2 === 0 ? 'bg-[#1F2A37]' : 'bg-[#1A1F2E]'
+                      }`}
+                    >
+                      <td className="py-4 px-6 text-center border-b border-[#2C3E50]/50">{product.id}</td>
+                      <td className="py-4 px-6 text-center border-b border-[#2C3E50]/50 font-medium">{product.nome}</td>
+                      <td className="py-4 px-6 text-center border-b border-[#2C3E50]/50 capitalize">{product.categoria}</td>
+                      <td className="py-4 px-6 text-center border-b border-[#2C3E50]/50 font-semibold text-green-400">
+                        {editingProductId === product.id ? (
+                          <input
+                            type="number"
+                            step="0.01"
+                            value={editPrice}
+                            onChange={e => setEditPrice(e.target.value)}
+                            className="w-24 px-3 py-2 bg-[#0D1117] border border-[#3B82F6] rounded-lg text-center text-[#E6EDF3] focus:outline-none focus:ring-2 focus:ring-[#3B82F6]"
+                            placeholder="0.00"
+                          />
+                        ) : (
+                          formatarValorEmReal(product.preco)
+                        )}
+                      </td>
+                      <td className="py-4 px-6 text-center border-b border-[#2C3E50]/50">
+                        {editingProductId === product.id ? (
+                          <input
+                            type="number"
+                            value={editQuantity}
+                            onChange={e => setEditQuantity(e.target.value)}
+                            className="w-20 px-3 py-2 bg-[#0D1117] border border-[#3B82F6] rounded-lg text-center text-[#E6EDF3] focus:outline-none focus:ring-2 focus:ring-[#3B82F6]"
+                          />
+                        ) : (
+                          <span className={`font-semibold ${
+                            product.quantidade <= 5 ? 'text-red-400' : 'text-green-400'
+                          }`}>
+                            {product.quantidade}
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-4 px-6 text-center border-b border-[#2C3E50]/50">
+                        {editingProductId === product.id ? (
+                          <div className="flex justify-center gap-2">
+                            <button 
+                              onClick={handleUpdate} 
+                              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors duration-200"
+                            >
+                              Salvar
+                            </button>
+                            <button 
+                              onClick={() => {
+                                setEditingProductId(null);
+                                setEditQuantity('');
+                                setEditPrice('');
+                              }} 
+                              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors duration-200"
+                            >
+                              Cancelar
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex justify-center gap-2">
+                            <button 
+                              onClick={() => handleEdit(product)} 
+                              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors duration-200"
+                            >
+                              Editar
+                            </button>
+                            <button 
+                              onClick={() => handleDelete(product.id)} 
+                              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors duration-200"
+                            >
+                              Excluir
+                            </button>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              {filteredProducts().length === 0 && (
+                <div className="py-12 text-center">
+                  <p className="text-[#8B949E] text-lg">Nenhum produto encontrado nesta categoria</p>
+                </div>
+              )}
+            </div>
           </div>
         ) : (
           <div className="flex items-center justify-center h-full">
-            <p className="text-[#8B949E] text-lg">Selecione uma categoria de produto para visualizar os itens</p>
+            <div className="text-center">
+              <div className="mb-6">
+                <svg className="mx-auto h-24 w-24 text-[#3B82F6]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+              </div>
+              <h3 className="text-2xl font-bold text-[#E6EDF3] mb-2">Selecione uma categoria</h3>
+              <p className="text-lg text-[#8B949E]">Escolha uma categoria no menu lateral para visualizar os produtos</p>
+            </div>
           </div>
         )}
       </div>

@@ -25,3 +25,11 @@ export const formatCPF = (value) => {
     return /^\d{3}\.\d{3}\.\d{3}-\d{2}$/.test(cpf);
   };
   
+
+export function formatarValorEmReal(valor) {
+    return new Intl.NumberFormat('pt-BR', { 
+        style: 'currency', 
+        currency: 'BRL' 
+    }).format(valor);
+}
+

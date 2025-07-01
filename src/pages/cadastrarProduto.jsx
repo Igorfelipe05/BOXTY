@@ -6,12 +6,69 @@ function CadastroProduto() {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm();
 
-  const onSubmit = (data) => {
-    console.log("Produto cadastrado:", data);
+
+const onSubmit = async (data) => {
+  try {   
+    const novoData = {
+  ...data,
+  id_usuario: 1,
+};
+
+      const response = await fetch("http://localhost:5001/server/produtos/produtos", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(novoData),
+      });
+      if (response.ok) {
+        console.log("Produto cadastrado com sucesso!");
+        alert("Produto cadastrado com sucesso!");
+        reset();
+      } else {
+        console.error("Erro ao cadastrar produto:", response.statusText);
+      }
+    
+  } catch (error) {
+    console.error("Erro ao cadastrar produto:", error);
+    
+  }
+   
+  
   };
+const categorias = [
+  { id: '1', nome: 'Sofás' },
+  { id: '2', nome: 'Mesas de Jantar' },
+  { id: '3', nome: 'Guarda-Roupas' },
+  { id: '4', nome: 'Cômodas' },
+  { id: '5', nome: 'Camas' },
+  { id: '6', nome: 'Criados-Mudos' },
+  { id: '7', nome: 'Poltronas' },
+  { id: '8', nome: 'Racks para TV' },
+  { id: '9', nome: 'Painéis para TV' },
+  { id: '10', nome: 'Estantes' },
+  { id: '11', nome: 'Aparadores' },
+  { id: '12', nome: 'Escrivaninhas' },
+  { id: '13', nome: 'Cadeiras' },
+  { id: '14', nome: 'Bancos' },
+  { id: '15', nome: 'Bares e Adegas' },
+  { id: '16', nome: 'Buffets' },
+  { id: '17', nome: 'Mesas de Centro' },
+  { id: '18', nome: 'Mesas Laterais' },
+  { id: '19', nome: 'Penteadeiras' },
+  { id: '20', nome: 'Beliches e Treliches' },
+  { id: '21', nome: 'Colchões' },
+  { id: '22', nome: 'Sapateiras' },
+  { id: '23', nome: 'Armários Multiuso' },
+  { id: '24', nome: 'Camas Box' },
+  { id: '25', nome: 'Camas Auxiliares' }
+];
+
+
 
   return (
     <div>
@@ -37,14 +94,14 @@ function CadastroProduto() {
           <input
             type="text"
             inputMode="numeric"
-            {...register("codigoBarras", {
+            {...register("codigo_barras", {
               required: "Código de Barras é obrigatório",
               pattern: { value: /^\d+$/, message: "Apenas números são permitidos" },
             })}
             className="w-full p-2 mb-2 rounded-lg bg-[#0D1117] border border-[#3B82F6] text-[#E6EDF3] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3B82F6]"
             placeholder="Digite o código de barras"
           />
-          {errors.codigoBarras && <p className="text-red-500 text-sm">{errors.codigoBarras.message}</p>}
+          {errors.codigo_barras && <p className="text-red-500 text-sm">{errors.codigo_barras.message}</p>}
 
           <label className="block mt-4 mb-2 text-[#CBD5E1]">Quantidade em Estoque:</label>
           <input
@@ -79,6 +136,28 @@ function CadastroProduto() {
             placeholder="Digite o nome do fornecedor"
           />
           {errors.fornecedor && <p className="text-red-500 text-sm">{errors.fornecedor.message}</p>}
+          <div className="flex flex-col gap-1">
+        <label htmlFor="categoria" className="text-sm font-medium text-gray-700">
+          Categoria
+        </label>
+
+        <select
+          id="categoria"
+          {...register('categoria', { required: 'Selecione uma categoria' })}
+          className="border border-gray-300 rounded-md px-3 py-2 text-sm"
+        >
+          <option value="">Selecione uma categoria</option>
+          {categorias.map((cat) => (
+            <option key={cat.id} value={cat.nome}>
+              {cat.nome}
+            </option>
+          ))}
+        </select>
+
+        {errors.categoria && (
+          <span className="text-sm text-red-500">{errors.categoria.message}</span>
+        )}
+      </div>
 
           <button
             type="submit"
