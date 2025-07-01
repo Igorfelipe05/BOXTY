@@ -40,13 +40,34 @@ const onSubmit = async (data) => {
    
   
   };
-
 const categorias = [
-    { id: '1', nome: 'Sofás' },
-    { id: '2', nome: 'Mesas' },
-    { id: '3', nome: 'Guarda Roupas' },
-    { id: '4', nome: 'Comoda' },
-  ];
+  { id: '1', nome: 'Sofás' },
+  { id: '2', nome: 'Mesas de Jantar' },
+  { id: '3', nome: 'Guarda-Roupas' },
+  { id: '4', nome: 'Cômodas' },
+  { id: '5', nome: 'Camas' },
+  { id: '6', nome: 'Criados-Mudos' },
+  { id: '7', nome: 'Poltronas' },
+  { id: '8', nome: 'Racks para TV' },
+  { id: '9', nome: 'Painéis para TV' },
+  { id: '10', nome: 'Estantes' },
+  { id: '11', nome: 'Aparadores' },
+  { id: '12', nome: 'Escrivaninhas' },
+  { id: '13', nome: 'Cadeiras' },
+  { id: '14', nome: 'Bancos' },
+  { id: '15', nome: 'Bares e Adegas' },
+  { id: '16', nome: 'Buffets' },
+  { id: '17', nome: 'Mesas de Centro' },
+  { id: '18', nome: 'Mesas Laterais' },
+  { id: '19', nome: 'Penteadeiras' },
+  { id: '20', nome: 'Beliches e Treliches' },
+  { id: '21', nome: 'Colchões' },
+  { id: '22', nome: 'Sapateiras' },
+  { id: '23', nome: 'Armários Multiuso' },
+  { id: '24', nome: 'Camas Box' },
+  { id: '25', nome: 'Camas Auxiliares' }
+];
+
 
 
   return (

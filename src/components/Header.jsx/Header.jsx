@@ -10,9 +10,12 @@ function Header() {
     setShowMenu(!showMenu);
   };
 
-  // Rotas onde o menu deve ser limitado
-  const hiddenRoutes = ["/cadastrarUser"];
-  const isMenuLimited = hiddenRoutes.includes(location.pathname);
+  const hiddenMenuRoutes = ["/cadastrarUser"];
+  const isMenuLimited = hiddenMenuRoutes.includes(location.pathname);
+  const hiddenHeaderRoutes = ["/login"]; 
+  const isHeaderHidden = hiddenHeaderRoutes.includes(location.pathname);
+
+  if (isHeaderHidden) return null;
 
   return (
     <div className='bg-[#161B22] py-2 flex items-center justify-between px-4 relative shadow-md'>
